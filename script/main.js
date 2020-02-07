@@ -15,6 +15,15 @@ function actOnJSON(url,funct){
   fetch(url).then((result)=>result.json()).then((result)=>funct(result));
 }
 
+function getRandomColor() {
+  var letters = '0123456789ABCDEF';
+  var color = '#';
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
 let photos = [] //list of the geometry representing pictures
 /*
 Draw the images on the "wall" in 3D using Three.js
@@ -31,16 +40,16 @@ function renderImages(imagesPositionsJson){
 
     var geo=new THREE.Geometry();
     geo.vertices.push(
-        new THREE.Vector3(x1,y1,feature.properties.id),//vertex0
-        new THREE.Vector3(x2,y2,feature.properties.id),//1
-        new THREE.Vector3(x3,y3,feature.properties.id),//2
-        new THREE.Vector3(x4,y4,feature.properties.id)//3
+        new THREE.Vector3(x1,y1,-feature.properties.id),//vertex0
+        new THREE.Vector3(x2,y2,-feature.properties.id),//1
+        new THREE.Vector3(x3,y3,-feature.properties.id),//2
+        new THREE.Vector3(x4,y4,-feature.properties.id)//3
         );
     geo.faces.push(
         new THREE.Face3(2,1,0),//use vertices of rank 2,1,0
-        new THREE.Face3(3,1,2)//vertices[3],1,2...
+        new THREE.Face3(3,2,0)//vertices[3],1,2...
         );
-        var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+        var material = new THREE.MeshBasicMaterial( { color: getRandomColor()  } );
         var photo = new THREE.Mesh( geo, material );
         photos.push(photo);
         scene.add( photo );
@@ -54,9 +63,10 @@ function animate() {
 	renderer.render( scene, camera );
 }
 actOnJSON("Data/1_14.geojson",renderImages)
-camera.position.set( 327, -1604, 11 );
+camera.position.set( 328, -1604, 500 );
 //camera.rotation.y = 90 * Math.PI / 180
-camera.rotation.set(0,0,-Math.PI/2)
+//camera.rotation.set(0,0,-Math.PI/2)
+camera.lookAt(328,-1604,-11)
 // controls = new THREE.OrbitControls( camera, renderer.domElement );
 //
 // 				//controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
