@@ -25,6 +25,7 @@ function getRandomColor() {
 }
 
 let photos = [] //list of the geometry representing pictures
+let idPhotos = []
 /*
 Draw the images on the "wall" in 3D using Three.js
 
@@ -49,20 +50,36 @@ function renderImages(imagesPositionsJson){
         new THREE.Face3(2,1,0),//use vertices of rank 2,1,0
         new THREE.Face3(3,2,0)//vertices[3],1,2...
         );
-        var material = new THREE.MeshBasicMaterial( { color: getRandomColor()  } );
-        var photo = new THREE.Mesh( geo, material );
-        photos.push(photo);
-        scene.add( photo );
+        const loader = new THREE.TextureLoader();
+        if(getImageUrl(feature.properties.id)!=undefined){
+          let path = "http://134.158.74.36/images/archives_nationales/"+getImageUrl(feature.properties.id);
+          var material = new THREE.MeshBasicMaterial( { map: loader.load(path)} );//,map: loader.load(path)
+          console.log(path);
+        }else{
+          var material = new THREE.MeshBasicMaterial( { color: getRandomColor()} );//,map: loader.load(path)
+        }
+    var photo = new THREE.Mesh( geo, material );
+    photos.push(photo);
+    scene.add( photo );
   })
 
 }
 camera.position.z = 5;
 
+let imagesURL = {};
+
+fetch("Data/images.json").then(data => data.json()).then(data => imagesURL = data ).then(actOnJSON("Data/1_14.geojson",renderImages))
+
+function getImageUrl(id){
+  return imagesURL[id]
+}
+
 function animate() {
 	requestAnimationFrame( animate );
+  //photos[5].rotation.y += 0.01
 	renderer.render( scene, camera );
 }
-actOnJSON("Data/1_14.geojson",renderImages)
+
 camera.position.set( 328, -1604, 500 );
 //camera.rotation.y = 90 * Math.PI / 180
 //camera.rotation.set(0,0,-Math.PI/2)
@@ -80,8 +97,5 @@ camera.lookAt(328,-1604,-11)
 // 				controls.maxDistance = 500;
 //
 // 				controls.maxPolarAngle = Math.PI / 2;
-
-
-
 
 animate();
